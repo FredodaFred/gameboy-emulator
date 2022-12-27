@@ -1,4 +1,6 @@
-#include <stdint.h>
+#pragma once
+
+#include "common.h"
 
 /* --- INSTRUCTIONS ---  */
 
@@ -6,7 +8,7 @@
 typedef enum addr_mode{
   IMP, R_D16, R_R, MR_R, R, R_D8, R_MR,
   R_HLI, R_HLD, HLI_R, HLD_R, R_A8, A8_R,
-  HL_SPR, D16, D8, D16_R, MR_D8, MR, A16_R, R_A16
+  HL_SPR, D16, D8, D16_R, MR_D8, MR, A16_R, R_A16,
 } addr_mode;
 
 // Types of Instructions
@@ -23,7 +25,7 @@ typedef enum instr_type{
 
 //Specifies which register
 typedef enum reg{
-  R_NONE, A, B, C, D, E, F, E, H, L, AF, BC, DE, HL, SP, PC
+  R_NONE, A, B, C, D, E, F, H, L, AF, BC, DE, HL, SP, PC
 } reg;
 
 typedef enum cond_type{

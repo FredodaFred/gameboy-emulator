@@ -1,2 +1,2 @@
 #!/bin/bash
-clang main.c -o /build/
+clang -Wall bus.c cart.c cpu.c emu.c instructions.c main.c -o emulator

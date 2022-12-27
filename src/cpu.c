@@ -2,13 +2,13 @@
 
 /* ------ CPU REGISTERS -------- */
 
-uint8_t a_reg = 0x1;
+uint8_t a_reg = 0x01;
 uint8_t flag_reg = 0xB0; // (f)
-uint8_t b_reg = 0x0;
+uint8_t b_reg = 0x00;
 uint8_t c_reg = 0x13;
-uint8_t d_reg = 0x0;
+uint8_t d_reg = 0x00;
 uint8_t e_reg = 0xD8;
-uint8_t h_reg = 0x1;
+uint8_t h_reg = 0x01;
 uint8_t l_reg = 0x4D;
 uint16_t sp_reg = 0xFFFE;
 uint16_t pc_reg = 0x100; 
@@ -69,7 +69,7 @@ void ld_r_16(reg reg1,  uint16_t d16){
         l_reg = (d16 << 4) >> 4;
     }
     else if(reg1 == SP){
-        sp_reg == d16;
+        sp_reg = d16;
     }
     else{
         printf("Invalid function call of ld_r_16\n");
@@ -130,21 +130,22 @@ void ld_r_hld(reg reg1){
 
 void ld_r_mr(reg reg1, reg reg2){
     uint8_t data;
+    uint16_t addr;
     switch(reg2){
         case(AF):
-            u_int16_t addr = ( (uint16_t)flag_reg ) | ( (uint16_t)(a_reg << 8) );
+            addr = ( (uint16_t)flag_reg ) | ( (uint16_t)(a_reg << 8) );
             data = bus_read(addr);  
             break;      
         case(BC):
-            u_int16_t addr = ( (uint16_t)c_reg ) | ( (uint16_t)(b_reg << 8) );
+            addr = ( (uint16_t)c_reg ) | ( (uint16_t)(b_reg << 8) );
             data = bus_read(addr);
             break;
         case(DE):
-            u_int16_t addr = ( (uint16_t)e_reg ) | ( (uint16_t)(d_reg << 8) );
+            addr = ( (uint16_t)e_reg ) | ( (uint16_t)(d_reg << 8) );
             data = bus_read(addr);
             break;
         case(HL):
-            u_int16_t addr = ( (uint16_t)l_reg ) | ( (uint16_t)(h_reg << 8) );
+            addr = ( (uint16_t)l_reg ) | ( (uint16_t)(h_reg << 8) );
             data = bus_read(addr);
             break;
         default:
@@ -212,20 +213,21 @@ void ld_mr_r(reg reg1, reg reg2){
            printf("Invalid reg2 on ld_mr_r\n"); 
     }
     switch(reg1){
+        uint16_t addr;
         case(AF):
-            u_int16_t addr = ( (uint16_t)flag_reg ) | ( (uint16_t)(a_reg << 8) );
+            addr = ( (uint16_t)flag_reg ) | ( (uint16_t)(a_reg << 8) );
             bus_write(addr, data);  
             break;      
         case(BC):
-            u_int16_t addr = ( (uint16_t)c_reg ) | ( (uint16_t)(b_reg << 8) );
+            addr = ( (uint16_t)c_reg ) | ( (uint16_t)(b_reg << 8) );
             bus_write(addr, data); 
             break;
         case(DE):
-            u_int16_t addr = ( (uint16_t)e_reg ) | ( (uint16_t)(d_reg << 8) );
+            addr = ( (uint16_t)e_reg ) | ( (uint16_t)(d_reg << 8) );
             bus_write(addr, data); 
             break;
         case(HL):
-            u_int16_t addr = ( (uint16_t)l_reg ) | ( (uint16_t)(h_reg << 8) );
+            addr = ( (uint16_t)l_reg ) | ( (uint16_t)(h_reg << 8) );
             bus_write(addr, data); 
             break;
         default:
@@ -396,6 +398,9 @@ void ld_r_r(reg reg1, reg reg2){
                 printf("Invalid reg2 on ld_r_r\n");
             }
             break; 
+        case(SP):
+            sp_reg = ( (uint16_t)l_reg ) | ( (uint16_t)(h_reg << 8) );
+            break;
         default:
            printf("Invalid function call of ld_r_8\n"); 
     }
@@ -403,7 +408,7 @@ void ld_r_r(reg reg1, reg reg2){
 
 
 void ld_mr_d8(reg reg1, uint8_t d8){
-    u_int16_t addr;
+    uint16_t addr;
     switch(reg1){
         case(AF):
             addr= ((uint16_t)flag_reg) | ( (uint16_t)(a_reg << 8) ); 
@@ -424,6 +429,290 @@ void ld_mr_d8(reg reg1, uint8_t d8){
     bus_write(addr, d8);
 }
 
+// void ldh_r_mr(reg reg1, reg reg2){
+//     uint8_t data;
+//     switch(reg2){
+//         case(A):
+//             data = a_reg;
+//             break;
+//         case(B):
+//             data = b_reg;
+//             break;
+//         case(C):
+//             data = c_reg;
+//             break;
+//         case(D):
+//             data = d_reg;
+//             break;   
+//         case(E):
+//             data = e_reg;
+//             break;   
+//         case(F):
+//             data = flag_reg;
+//             break;            
+//         case(H):
+//             data = h_reg;
+//             break;    
+//         case(L):
+//             data = l_reg;
+//             break; 
+//         default:
+//            printf("Invalid reg2 on ld_mr_r\n"); 
+//            return;
+//     }
+//     uint16_t addr = ((uint16_t)data) | ( (uint16_t)(0xFF << 8) );
+//     uint8_t data = bus_read(addr);
+//     switch(reg1){
+//         case(A):
+//             a_reg = data;
+//             break;
+//         case(B):
+//             b_reg = data;
+//             break;
+//         case(C):
+//             c_reg = data;
+//             break;
+//         case(D):
+//             d_reg = data;
+//             break;   
+//         case(E):
+//             e_reg = data;
+//             break;   
+//         case(F):
+//             flag_reg = data;
+//             break;            
+//         case(H):
+//             h_reg = data;
+//             break;    
+//         case(L):
+//             l_reg = data;
+//             break; 
+//         default:
+//            printf("Invalid reg1 on ld_r_mr\n"); 
+//     }
+// }
+
+void ldh_mr_r(reg reg1, reg reg2){
+    uint8_t data;
+    switch(reg1){
+        case(A):
+            data = a_reg;
+            break;
+        case(B):
+            data = b_reg;
+            break;
+        case(C):
+            data = c_reg;
+            break;
+        case(D):
+            data = d_reg;
+            break;   
+        case(E):
+            data = e_reg;
+            break;   
+        case(F):
+            data = flag_reg;
+            break;            
+        case(H):
+            data = h_reg;
+            break;    
+        case(L):
+            data = l_reg;
+            break; 
+        default:
+           printf("Invalid reg2 on ld_mr_r\n"); 
+           return;
+    }  
+    uint16_t addr = ((uint16_t)data) | ( (uint16_t)(0xFF << 8) );
+    switch(reg2){
+        case(A):
+            bus_write(addr, a_reg);
+            break;
+        case(B):
+            bus_write(addr, b_reg);
+            break;
+        case(C):
+            bus_write(addr, c_reg);
+            break;
+        case(D):
+            bus_write(addr, d_reg);
+            break;   
+        case(E):
+            bus_write(addr, e_reg);
+            break;   
+        case(F):
+            bus_write(addr, flag_reg);
+            break;            
+        case(H):
+            bus_write(addr, h_reg);
+            break;    
+        case(L):
+            bus_write(addr, l_reg);
+            break; 
+        default:
+           printf("Invalid reg1 on ld_r_mr\n"); 
+    }
+}
+
+void ld_r_a8(reg reg1, uint8_t a8){
+    uint16_t addr = ((uint16_t)a8) | ( (uint16_t)(0xFF << 8) );
+    uint8_t data = bus_read(addr);
+    switch(reg1){
+        case(A):
+            a_reg = data;
+            break;
+        case(B):
+            b_reg = data;
+            break;
+        case(C):
+            c_reg = data;
+            break;
+        case(D):
+            d_reg = data;
+            break;   
+        case(E):
+            e_reg = data;
+            break;   
+        case(F):
+            flag_reg = data;
+            break;            
+        case(H):
+            h_reg = data;
+            break;    
+        case(L):
+            l_reg = data;
+            break; 
+        default:
+           printf("Invalid reg1 on ld_r_mr\n"); 
+           return;
+    }
+}
+
+void ld_a8_r(reg reg1, uint8_t a8){
+    uint8_t data;
+    switch(reg1){
+        case(A):
+            data = a_reg;
+            break;
+        case(B):
+            data = b_reg;
+            break;
+        case(C):
+            data = c_reg;
+            break;
+        case(D):
+            data = d_reg;
+            break;   
+        case(E):
+            data = e_reg;
+            break;   
+        case(F):
+            data = flag_reg;
+            break;            
+        case(H):
+            data = h_reg;
+            break;    
+        case(L):
+            data = l_reg;
+            break; 
+        default:
+           printf("Invalid reg2 on ld_mr_r\n"); 
+           return;
+    }  
+    uint16_t addr = ((uint16_t)a8) | ( (uint16_t)(0xFF << 8) );
+    bus_write(addr, data);
+}
+
+void ld_a16_r(reg reg1, uint16_t a16){
+    uint8_t data;
+    switch(reg1){
+        case(A):
+            data = a_reg;
+            break;
+        case(B):
+            data = b_reg;
+            break;
+        case(C):
+            data = c_reg;
+            break;
+        case(D):
+            data = d_reg;
+            break;   
+        case(E):
+            data = e_reg;
+            break;   
+        case(F):
+            data = flag_reg;
+            break;            
+        case(H):
+            data = h_reg;
+            break;    
+        case(L):
+            data = l_reg;
+            break; 
+        default:
+           printf("Invalid reg2 on ld_mr_r\n"); 
+           return;
+    } 
+    bus_write(a16, data);
+}
+
+void ld_r_a16(reg reg1, uint16_t a16){
+    uint8_t data = bus_read(a16);
+    switch(reg1){
+        case(A):
+            a_reg = data;
+            break;
+        case(B):
+            b_reg = data;
+            break;
+        case(C):
+            c_reg = data;
+            break;
+        case(D):
+            d_reg = data;
+            break;   
+        case(E):
+            e_reg = data;
+            break;   
+        case(F):
+            flag_reg = data;
+            break;            
+        case(H):
+            h_reg = data;
+            break;    
+        case(L):
+            l_reg = data;
+            break; 
+        default:
+           printf("Invalid reg1 on ld_r_mr\n"); 
+           return;
+    }    
+}
+
+void ld_hl_spr(int8_t r8){
+    /**
+    case 0xF8: 
+        int8_t offset = (int8_t) __gb_read(gb, gb->cpu_reg.pc++);
+        gb->cpu_reg.hl = gb->cpu_reg.sp + offset;
+        gb->cpu_reg.f_bits.z = 0;
+        gb->cpu_reg.f_bits.n = 0;
+        gb->cpu_reg.f_bits.h =
+            ((gb->cpu_reg.sp & 0xF) + (offset & 0xF) > 0xF) ? 1 : 0;
+        gb->cpu_reg.f_bits.c =
+            ((gb->cpu_reg.sp & 0xFF) + (offset & 0xFF) > 0xFF) ? 1 : 0;
+    **/
+
+    set_flag(false, 7); //Z
+    set_flag(false, 6); //N
+
+    uint16_t res = sp_reg + r8;
+    h_reg = res >> 4; // 12345678 => 00001234
+    l_reg = (res << 4) >> 4; //12345678 => 56780000 => 00005678
+    set_flag( (( (sp_reg & 0xF) + (r8 & 0xF) ) > 0xF ) ? 1 : 0,  5); //H
+    set_flag( (( (sp_reg & 0xFF)+ (r8 & 0xFF)) > 0xFF) ? 1 : 0,  4); //C
+}
+
 /* ----- CPU FUNCTIONALITY ----- */
 
 CPU_STATE cpu = {0, false, false, 0};
@@ -435,19 +724,27 @@ void execute_instruction(){
     if(instruction->type == LD){
         /* LOAD INSTRUCTIONS */
         switch(mode){
+            uint16_t LSB;
+            uint16_t MSB;
+            uint16_t d16;
+            uint8_t d8;
+            uint16_t a16;
+            uint8_t a8;
+            int8_t r8;
             case(R_D16):
-                uint16_t LSB = bus_read(pc_reg); //lo
+                LSB = bus_read(pc_reg); //lo
                 pc_reg++;
                 tick();
-                uint16_t MSB = bus_read(pc_reg); //hi
+                MSB = bus_read(pc_reg); //hi
                 pc_reg++;
                 tick();
-                uint16_t d16 = LSB | (MSB << 8);
+                d16 = LSB | (MSB << 8);
                 ld_r_16(instruction->reg_1, d16);
                 break;
             case(R_D8):
-                uint8_t d8 = bus_read(pc_reg);
+                d8 = bus_read(pc_reg);
                 pc_reg++;
+                tick();
                 ld_r_8(instruction->reg_1, d8);
                 break;  
             case(R_R):
@@ -466,23 +763,87 @@ void execute_instruction(){
                 ld_hld_r(instruction->reg_1);  
                 break; 
             case(MR_R):
+                if(instruction->reg_2 == A){
+                    ld_mr_r(instruction->reg_1, (uint16_t)0xFF00 + (uint16_t)instruction->reg_2);
+                    break;
+                }
                 ld_mr_r(instruction->reg_1, instruction->reg_2);
                 break; 
             case(R_MR):
+                if(instruction->reg_1 == A){
+                    ld_mr_r((uint16_t)0xFF00 + (uint16_t)instruction->reg_1,instruction->reg_2);
+                    break;
+                }
                 ld_r_mr(instruction->reg_1, instruction->reg_2);    
                 break;            
             case(MR_D8):
-                ld_hld_r(instruction->reg_1);   
-                break;                                                                      
+                d8 = bus_read(pc_reg);
+                pc_reg++;
+                tick();
+                ld_mr_d8(instruction->reg_1, d8);   
+                break;   
+            case(A16_R):
+                LSB = bus_read(pc_reg); //lo
+                pc_reg++;
+                tick();
+                MSB = bus_read(pc_reg); //hi
+                pc_reg++;
+                tick();
+                a16 = LSB | (MSB << 8);  
+                ld_a16_r(instruction->reg_1, a16);
+                break;    
+            case(R_A16):
+                LSB = bus_read(pc_reg); //lo
+                pc_reg++;
+                tick();
+                MSB = bus_read(pc_reg); //hi
+                pc_reg++;
+                tick();
+                a16 = LSB | (MSB << 8);   
+                ld_r_a16(instruction->reg_1, a16);
+                break;     
+            case(A8_R):
+                a8 = bus_read(pc_reg);
+                pc_reg++;
+                tick();          
+                ld_a8_r(instruction->reg_1, a8);
+                break;    
+            case(R_A8):
+                a8 = bus_read(pc_reg);
+                pc_reg++;
+                tick();
+                ld_r_a8(instruction->reg_1, a8);          
+                break;
+            case(HL_SPR):
+                r8 = bus_read(pc_reg); //this is signed apparently
+                pc_reg++;
+                tick();
+                ld_hl_spr(r8);
+                break;                                                                           
             default:
-                printf("No mode exists on load instruction\n");
+                printf("No mode exists on LD instruction\n");
         }
         return;
 
     }
-    else if(instruction->type == XOR){
-        /* XOR INSTRUCTIONS */
-
+    else if(instruction->type == LDH){
+        switch(instruction->mode){
+            uint8_t a8;
+            case(A8_R):
+                a8 = bus_read(pc_reg);
+                pc_reg++;
+                tick();          
+                ld_a8_r(instruction->reg_1, a8);
+                break;
+            case(R_A8):
+                a8 = bus_read(pc_reg);
+                pc_reg++;
+                tick();
+                ld_r_a8(instruction->reg_1, a8);
+                break;                     
+            default:
+                printf("No mode exists on LDH instruction\n");            
+        }
     }
 }
 void fetch_instruction(){
@@ -514,3 +875,13 @@ uint8_t get_h_reg(){ return h_reg; }
 uint8_t get_l_reg(){ return l_reg; }
 uint16_t   get_sp(){ return sp_reg;}
 uint16_t   get_pc(){ return pc_reg;}
+void set_a_reg(uint8_t x){a_reg = x;}
+void set_f_reg(uint8_t x){flag_reg = x;}
+void set_b_reg(uint8_t x){b_reg = x;}
+void set_c_reg(uint8_t x){c_reg = x;}
+void set_d_reg(uint8_t x){d_reg = x;}
+void set_e_reg(uint8_t x){e_reg = x;}
+void set_h_reg(uint8_t x){h_reg = x;}
+void set_l_reg(uint8_t x){l_reg = x;}
+void   set_sp(uint16_t x){sp_reg = x;}
+void   set_pc(uint16_t x){pc_reg = x;}

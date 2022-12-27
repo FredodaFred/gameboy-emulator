@@ -1,5 +1,6 @@
-#include <stdint.h>
-#include <stdbool.h>
+#pragma once
+
+#include "common.h"
 #include "bus.h"
 #include "instructions.h"
 #include "emu.h"
@@ -59,6 +60,43 @@ void ld_mr_r(reg reg1, reg reg2);
 //load d8 into memory specified by 16 reg1 register
 void ld_mr_d8(reg reg1, uint8_t d8);
 
+/**
+ * Load to the 8-bit reg1 register, data from the address specified by the 8-bit reg2 register. The full 16-bit absolute
+ * address is obtained by setting the most significant byte to 0xFFand the least significant byte to the value of reg2,
+ * so the possible range is 0xFF00-0xFFFF.
+**/
+void ldh_r_mr(reg reg1, reg reg2);
+
+/**
+* Load to the address specified by the 8-bit reg1 register, data from the 8-bit reg2 register. The full 16-bit absolute
+* address is obtained by setting the most significant byte to 0xFFand the least significant byte to the value of reg1,
+* so the possible range is 0xFF00-0xFFFF
+**/
+void ldh_mr_r(reg reg1, reg reg2);
+
+// LDH r,(a8) has alternative mnemonic LD r,($FF00+a8)
+// LDH (a8),r has alternative mnemonic LD ($FF00+a8),r
+
+/**
+ * Load to the address specified by the 8-bit immediate data a8, data from the 8-bit reg1 register. The full 16-bit
+ * absolute address is obtained by setting the most significant byte to 0xFFand the least significant byte to the
+ * value of a8, so the possible range is 0xFF00-0xFFF
+ **/
+void ld_r_a8(reg reg1, uint8_t a8);
+
+/**
+ * Load to the 8-bit reg1 register, data from the address specified by the 8-bit immediate data a8. The full 16-bit
+ * absolute address is obtained by setting the most significant byte to 0xFFand the least significant byte to the
+ * value of a8, so the possible range is 0xFF00-0xFFFF
+ **/
+void ld_a8_r(reg reg1, uint8_t a8);
+
+//load from reg 1 to a16
+void ld_a16_r(reg reg1, uint16_t a16);
+
+//load to r from a16
+void ld_r_a16(reg reg1, uint16_t a16);
+
 /* Test Helpers */
 uint8_t get_a_reg();
 uint8_t get_f_reg();
@@ -70,3 +108,14 @@ uint8_t get_h_reg();
 uint8_t get_l_reg();
 uint16_t   get_sp();
 uint16_t   get_pc();
+
+void set_a_reg(uint8_t x);
+void set_f_reg(uint8_t x);
+void set_b_reg(uint8_t x);
+void set_c_reg(uint8_t x);
+void set_d_reg(uint8_t x);
+void set_e_reg(uint8_t x);
+void set_h_reg(uint8_t x);
+void set_l_reg(uint8_t x);
+void   set_sp(uint16_t x);
+void   set_pc(uint16_t x);

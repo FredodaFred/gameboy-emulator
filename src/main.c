@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
         printf("Failed to load ROM file: %s\n", argv[1]);
         return -2;
     }
-
+    printf("can read rom\n");
 
 }
 

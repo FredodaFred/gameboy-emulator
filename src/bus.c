@@ -17,7 +17,7 @@ void bus_write(uint16_t addr, uint8_t data){
     ram[addr] = data;
 }
 
-uint8_t bus_read(u_int16_t addr){
+uint8_t bus_read(uint16_t addr){
     if(addr <= 0x0000 || addr >= 0xFFFF){
         printf("Read to ram failed. Address out of range\n");
         return 0;

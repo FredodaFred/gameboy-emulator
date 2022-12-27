@@ -1,5 +1,6 @@
-#include <stdbool.h>
-#include <stdint.h>
+#pragma once
+
+#include "common.h"
 
 /* Increment Clock by 1 */
 uint64_t tick();
