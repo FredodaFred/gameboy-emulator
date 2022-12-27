@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "stdio.h": "c",
-        "registers.h": "c"
+        "registers.h": "c",
+        "cpu.h": "c"
     }
 }

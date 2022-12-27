@@ -1,0 +1,1 @@
+bool cart_load(char* file_name);

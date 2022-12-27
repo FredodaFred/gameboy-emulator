@@ -19,7 +19,19 @@ char* instr_type_to_name[] = {
 //Instruction lookup table
 Instruction instruction_lookup_table[0x100] = {
     [0x00] = {NOP, IMP},
-    [0x01] = {LD, R_D16, B, C, CT_NONE, 0, ld_r_16}
+    //LOAD INSTRUCTIONS
+    [0x01] = {LD, R_D16, B, C, CT_NONE},
+    [0x02] = {LD, 0, 0, 0, CT_NONE}, //TODO
+    [0x06] = {LD, R_D8, B, R_NONE, CT_NONE},
+    [0x08] = {LD, A16_R, SP, R_NONE, CT_NONE},
+    [0x0E] = {LD, R_D8, C, R_NONE, CT_NONE},
+    [0x11] = {LD, R_D16, D, E, CT_NONE }, //TODO
+    [0x12] = {LD, 0, 0, 0, CT_NONE}, //TODO
+    [0x16] = {LD, R_D8, D, R_NONE, CT_NONE},
+    [0x1A] = {LD, 0, 0, 0, CT_NONE }, //TODO
+    [0x1E] = {LD, R_D8, E, R_NONE, CT_NONE},
+    [0x21] = {LD, R_D16, SP, R_NONE, CT_NONE},
+    [0x22] = {LD, R_HLI, A, R_NONE, CT_NONE},
 };
 
 char *inst_name(instr_type t) { return instr_type_to_name[t]; }

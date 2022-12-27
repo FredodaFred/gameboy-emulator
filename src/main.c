@@ -1,4 +1,11 @@
 #include <stdio.h>
+#include <stdint.h>
+#include <stdbool.h>
+
+#include "cart.h"
+#include "emu.h"
+
+
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -10,4 +17,7 @@ int main(int argc, char *argv[]) {
         printf("Failed to load ROM file: %s\n", argv[1]);
         return -2;
     }
+
+
 }
+

@@ -45,9 +45,7 @@ typedef enum cond_type{
  * addr_mode mode - specifies the addressing mode
  * reg reg_1 - reg1
  * reg reg_2 - reg2
- * cond_type cond - ???
- * uint8_t param - ???
- * InstructionFunction func - holds function associated with that instruction (deprecated)
+ * cond_type cond - assists in control flow/branching
  **/
 typedef struct Instruction{
     instr_type type;
@@ -55,8 +53,6 @@ typedef struct Instruction{
     reg reg_1;
     reg reg_2;
     cond_type cond;
-    uint8_t param;
-    // InstructionFunction func;
 } Instruction;
 
 

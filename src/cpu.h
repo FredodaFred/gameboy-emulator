@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include "bus.h"
 #include "instructions.h"
+#include "emu.h"
 
 /* CPU UTIL */
 
@@ -16,7 +17,6 @@ typedef struct CPU_STATE {
   bool halted;
   uint8_t currInstrOpcode;
   Instruction* currInstr;
-
 } CPU_STATE;
 
 /* Other external functions (async) */
@@ -33,11 +33,17 @@ void ld_r_16(reg reg1, reg reg2, uint16_t d16);
 //load immediate data d8 to 8 bit register (reg1)
 void ld_r_8(reg reg1, uint8_t d8);
 
+//load reg2 data to reg1
+void ld_r_r(reg reg1, reg reg2);
 
-
-
-
-
-
-
-
+/* Test Helpers */
+uint8_t get_a_reg();
+uint8_t get_f_reg();
+uint8_t get_b_reg();
+uint8_t get_c_reg();
+uint8_t get_d_reg();
+uint8_t get_e_reg();
+uint8_t get_h_reg();
+uint8_t get_l_reg();
+uint16_t   get_sp();
+uint16_t   get_pc();

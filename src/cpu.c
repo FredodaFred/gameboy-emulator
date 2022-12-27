@@ -28,8 +28,10 @@ void execute_instruction(){
             case(R_D16):
                 uint16_t LSB = bus_read(pc_reg); //lo
                 pc_reg++;
+                tick();
                 uint16_t MSB = bus_read(pc_reg); //hi
                 pc_reg++;
+                tick();
                 uint16_t d16 = LSB | (MSB << 8);
                 ld_r_16(instruction->reg_1, instruction->reg_2, d16);
                 break;
@@ -39,7 +41,7 @@ void execute_instruction(){
                 ld_r_8(instruction->reg_1, d8);
                 break;  
             case(R_R):
-                printf("");
+                ld_r_r(instruction->reg_1, instruction->reg_2);
             case(HLI_R):
                 printf("");
             case(R_HLI):
@@ -62,6 +64,7 @@ void execute_instruction(){
 void fetch_instruction(){
     cpu.currInstrOpcode =  bus_read(pc_reg);
     pc_reg++;
+    tick();
     cpu.currInstr = instr_lookup(cpu.currInstrOpcode);
 }
 // void fetch_data(){
@@ -75,8 +78,6 @@ bool cpu_step(){
 
     return false;
 }
-
-
 
 
 /* Access and modify flag register */
@@ -138,6 +139,7 @@ void ld_r_16(reg reg1, reg reg2, uint16_t d16){
         printf("Invalid function call of ld_r_16\n");
     }
 }
+
 void ld_r_8(reg reg1, uint8_t d8){
     switch(reg1){
         case(A):
@@ -165,3 +167,189 @@ void ld_r_8(reg reg1, uint8_t d8){
            printf("Invalid function call of ld_r_8\n");                                        
     }
 }
+
+void ld_hli_r(reg reg1){
+    //absolute address specified by HL
+    u_int16_t addr = ( (uint16_t)l_reg ) | ( (uint16_t)(h_reg << 8) );
+    bus_write(addr, reg1);
+    l_reg++;
+}
+void ld_r_r(reg reg1, reg reg2){
+    switch(reg1){
+        case(A):
+            if(reg2 == B){
+                a_reg = b_reg;
+            }
+            else if(reg2 == C){
+                a_reg = c_reg;
+            }
+            else if(reg2 == D){
+                a_reg = d_reg;
+            }
+            else if(reg2 == E){
+                a_reg = e_reg;
+            }
+            else if(reg2 == H){
+                a_reg = h_reg;
+            }
+            else if(reg2 == L){
+                a_reg = l_reg;
+            }
+            else{
+                printf("Invalid reg2 on ld_r_r\n");
+            }
+            break;
+        case(B):
+            if(reg2 == A){
+                b_reg = a_reg;
+            }
+            else if(reg2 == C){
+                b_reg = c_reg;
+            }
+            else if(reg2 == D){
+                b_reg = d_reg;
+            }
+            else if(reg2 == E){
+                b_reg = e_reg;
+            }
+            else if(reg2 == H){
+                b_reg = h_reg;
+            }
+            else if(reg2 == L){
+                b_reg = l_reg;
+            }
+            else{
+                printf("Invalid reg2 on ld_r_r\n");
+            }
+            break;
+        case(C):
+            if(reg2 == A){
+                c_reg = a_reg;
+            }
+            else if(reg2 == B){
+                c_reg = b_reg;
+            }
+            else if(reg2 == D){
+                c_reg = d_reg;
+            }
+            else if(reg2 == E){
+                c_reg = e_reg;
+            }
+            else if(reg2 == H){
+                c_reg = h_reg;
+            }
+            else if(reg2 == L){
+                c_reg = l_reg;
+            }
+            else{
+                printf("Invalid reg2 on ld_r_r\n");
+            }
+            break;
+        case(D):
+            if(reg2 == A){
+                d_reg = a_reg;
+            }
+            else if(reg2 == B){
+                d_reg = b_reg;
+            }
+            else if(reg2 == C){
+                d_reg = c_reg;
+            }
+            else if(reg2 == E){
+                d_reg = e_reg;
+            }
+            else if(reg2 == H){
+                d_reg = h_reg;
+            }
+            else if(reg2 == L){
+                d_reg = l_reg;
+            }
+            else{
+                printf("Invalid reg2 on ld_r_r\n");
+            }
+            break;   
+        case(E):
+            if(reg2 == A){
+                e_reg = a_reg;
+            }
+            else if(reg2 == B){
+                e_reg = b_reg;
+            }
+            else if(reg2 == C){
+                e_reg = c_reg;
+            }
+            else if(reg2 == D){
+                e_reg = d_reg;
+            }
+            else if(reg2 == H){
+                e_reg = h_reg;
+            }
+            else if(reg2 == L){
+                e_reg = l_reg;
+            }
+            else{
+                printf("Invalid reg2 on ld_r_r\n");
+            }
+            break;   
+        case(H):
+            if(reg2 == A){
+                h_reg = a_reg;
+            }
+            else if(reg2 == B){
+                h_reg = b_reg;
+            }
+            else if(reg2 == C){
+                h_reg = c_reg;
+            }
+            else if(reg2 == D){
+                h_reg = d_reg;
+            }
+            else if(reg2 == E){
+                h_reg = e_reg;
+            }
+            else if(reg2 == L){
+                h_reg = l_reg;
+            }
+            else{
+                printf("Invalid reg2 on ld_r_r\n");
+            }
+            break;    
+        case(L):
+            if(reg2 == A){
+                l_reg = a_reg;
+            }
+            else if(reg2 == B){
+                l_reg = b_reg;
+            }
+            else if(reg2 == C){
+                l_reg = c_reg;
+            }
+            else if(reg2 == D){
+                l_reg = d_reg;
+            }
+            else if(reg2 == E){
+                l_reg = e_reg;
+            }
+            else if(reg2 == H){
+                l_reg = h_reg;
+            }
+            else{
+                printf("Invalid reg2 on ld_r_r\n");
+            }
+            break; 
+        default:
+           printf("Invalid function call of ld_r_8\n"); 
+    }
+}
+
+/* testing helpers */
+uint8_t get_a_reg(){ return a_reg; }
+uint8_t get_f_reg(){ return flag_reg; }
+uint8_t get_b_reg(){ return b_reg; }
+uint8_t get_c_reg(){ return c_reg; }
+uint8_t get_d_reg(){ return d_reg; }
+uint8_t get_e_reg(){ return e_reg; }
+uint8_t get_h_reg(){ return h_reg; }
+uint8_t get_l_reg(){ return l_reg; }
+uint16_t   get_sp(){ return sp_reg;}
+uint16_t   get_pc(){ return pc_reg;}
