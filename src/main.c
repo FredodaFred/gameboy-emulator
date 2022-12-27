@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
-
+#include "common.h"
 #include "cart.h"
 #include "emu.h"
 
@@ -17,7 +14,5 @@ int main(int argc, char *argv[]) {
         printf("Failed to load ROM file: %s\n", argv[1]);
         return -2;
     }
-    printf("can read rom\n");
-
 }
 
