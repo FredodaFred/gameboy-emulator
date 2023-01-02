@@ -25,6 +25,12 @@ uint8_t half_carry_flag(){ return ( (flag_reg << 2) >> 7); }
 //C - bit 4
 uint8_t carry_flag(){ return ( (flag_reg << 3) >> 7); }
 
+/**
+ * Z - bit 7
+ * N - bit 6
+ * H - bit 5
+ * C - bit 4
+ **/
 void set_flag(bool val, uint8_t flag){
     if(flag >= 0 && flag <= 3) {
         printf("Forbidden Bit attempted to be modified on flag register\n");
@@ -845,6 +851,256 @@ void execute_instruction(){
                 printf("No mode exists on LDH instruction\n");            
         }
     }
+    else if(instruction->type == INC){
+        /*
+        opcode = read(PC++)
+        # example: INC B
+            result, carry_per_bit = B + 1
+            B = result
+            flags.Z = 1 if result == 0 else 0
+            flags.N = 0
+            flags.H = 1 if carry_per_bit[3] else 0
+        */
+        switch(instruction->reg_1){
+            uint16_t addr;
+            uint8_t data;
+            case(A):
+                a_reg++;
+                set_flag( (a_reg == 0 ) ? 1 : 0,  7); //Z
+                set_flag(false, 6); //N
+                set_flag( (a_reg == 0 ) ? 1 : 0,  5); //H TODO TODO
+                break;
+            case(B):
+                b_reg++;
+                set_flag( (b_reg == 0 ) ? 1 : 0,  7); //Z  
+                set_flag(false, 6); //N
+                set_flag( (b_reg == 0 ) ? 1 : 0,  5); //H TODO               
+                break;     
+             case(C):
+                c_reg++;
+                set_flag( (c_reg == 0 ) ? 1 : 0,  7); //Z  
+                set_flag(false, 6); //N
+                set_flag(  (c_reg == 0 ) ? 1 : 0,  5); //H TODO               
+                break;
+            case(D):
+                d_reg++;
+                set_flag( (d_reg == 0 ) ? 1 : 0,  7); //Z  
+                set_flag(false, 6); //N
+                set_flag(  (d_reg == 0 ) ? 1 : 0,  5); //H TODO               
+                break;    
+            case(E):
+                e_reg++;
+                set_flag( (e_reg == 0 ) ? 1 : 0,  7); //Z  
+                set_flag(false, 6); //N
+                set_flag(  (e_reg == 0 ) ? 1 : 0,  5); //H TODO               
+                break;     
+            case(H):
+                h_reg++;
+                set_flag( (h_reg == 0 ) ? 1 : 0,  7); //Z  
+                set_flag(false, 6); //N
+                set_flag( ( h_reg ==0 ) ? 1 : 0,  5); //H TODO                  
+                break;  
+            case(L):
+                l_reg++;
+                set_flag( (l_reg == 0 ) ? 1 : 0,  7); //Z  
+                set_flag(false, 6); //N
+                set_flag( ( l_reg == 0 ) ? 1 : 0,  5); //H TODO                       
+                break;
+            case(DE):
+                //trust the logic >.<
+                e_reg++;
+                if(e_reg == 0){
+                    d_reg++;
+                }
+                break;
+            case(HL):
+                if(instruction->mode == MR){
+                    addr = ( (uint16_t)l_reg ) | ( (uint16_t)(h_reg << 8) );
+                    data = bus_read(addr);
+                    data++;
+                    set_flag(false, 7); //Z
+                    set_flag(false, 6); //N
+                    set_flag( ( data == 0 ) ? 1 : 0,  5); //H                      
+                }
+                else{
+                    l_reg++;
+                    if(l_reg == 0){
+                        h_reg++;
+                    }
+                }
+                break;
+            case(BC):
+                e_reg++;
+                if(e_reg == 0){
+                    d_reg++;
+                }
+            case(SP):
+                sp_reg++;
+                break;
+            default:
+                printf("Bad call of INC instruction\n");                                               
+        }
+
+    }
+    else if(instruction->type == DEC){
+         switch(instruction->reg_1){
+            case(A):
+                a_reg--;
+                break;
+            case(B):
+                b_reg--;
+                break;     
+             case(C):
+                c_reg--;
+                break;
+            case(D):
+                d_reg--;
+                break;    
+            case(E):
+                e_reg--;
+                break;     
+            case(F):
+                flag_reg--;
+                break;
+            case(H):
+                h_reg--;
+                break;  
+            case(L):
+                l_reg--;
+                break;
+            case(SP):
+
+                break;
+            default:
+                printf("Bad call of DEC instruction\n");                                               
+        }       
+    }
+    else if(instruction->type == RLCA){
+
+    }
+    else if(instruction->type == ADD){
+        
+    }
+    else if(instruction->type == RRCA){
+
+    }
+    else if(instruction->type == STOP){
+        
+    }
+    else if(instruction->type == RLA){
+
+    }
+    else if(instruction->type == JR){
+        
+    }
+    else if(instruction->type == RRA){
+
+    }
+    else if(instruction->type == DAA){
+        
+    }
+    else if(instruction->type == CPL){
+
+    }
+    else if(instruction->type == SCF){
+        
+    }
+    else if(instruction->type == CCF){
+
+    }
+    else if(instruction->type == HALT){
+        
+    }
+    else if(instruction->type == ADC){
+
+    }
+    else if(instruction->type == SUB){
+        
+    }  
+   else if(instruction->type == SBC){
+
+    }
+    else if(instruction->type == AND){
+        
+    }
+    else if(instruction->type == XOR){
+
+    }
+    else if(instruction->type == OR){
+        
+    }
+    else if(instruction->type == CP){
+
+    }
+    else if(instruction->type == POP){
+        
+    }
+    else if(instruction->type == JP){
+
+    }
+    else if(instruction->type == PUSH){
+        
+    }
+    else if(instruction->type == RET){
+
+    }
+    else if(instruction->type == CB){
+        
+    }
+    else if(instruction->type == CALL){
+
+    }
+    else if(instruction->type == RETI){
+        
+    }
+    else if(instruction->type == JPHL){
+
+    }
+    else if(instruction->type == DI){
+        
+    }
+    else if(instruction->type == EI){
+
+    }
+    else if(instruction->type == RST){
+        
+    }   
+     else if(instruction->type == ERR){
+
+    }
+    else if(instruction->type == RLC){
+        
+    }
+    else if(instruction->type == RRC){
+
+    }
+    else if(instruction->type == RL){
+        
+    }
+    else if(instruction->type == RR){
+
+    }
+    else if(instruction->type == SLA){
+        
+    }
+    else if(instruction->type == SRA){
+
+    }
+    else if(instruction->type == SWAP){
+        
+    }   
+    else if(instruction->type == SRL){
+        
+    }
+    else if(instruction->type == BIT){
+
+    }
+    else if(instruction->type == RES){
+        
+    }
+    else if(instruction->type == SET){
+
+    }  
 }
 void fetch_instruction(){
     cpu.currInstrOpcode =  bus_read(pc_reg);
@@ -859,6 +1115,9 @@ bool cpu_step(){
     if(!cpu.halted){
         fetch_instruction();
         execute_instruction();
+        printf("Current Instruction: %s (%02X) // Registers: A %02X B %02X C %02X D %02X F %02X H %02X L %02X PC %04X SP %04X\n"
+        ,inst_name(cpu.currInstr->type), cpu.currInstrOpcode, a_reg, b_reg, c_reg, d_reg, flag_reg, h_reg, l_reg, pc_reg, sp_reg);
+        return true;
     }
 
     return false;

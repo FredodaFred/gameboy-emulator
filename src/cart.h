@@ -17,7 +17,21 @@ typedef struct RomHeader{
     uint16_t global_checksum;
 } RomHeader;
 
-typedef struct Rom{
-    uint8_t* rom_data;
-}Rom;
+// typedef struct Rom{
+//     uint8_t* rom_data;
+// }Rom;
+
+//Open Rom file and load data into memory
 bool cart_load(char* file_name);
+
+//free memory allocated for file
+bool cart_close();
+
+//read data from cart
+uint8_t cart_read(uint16_t addr);
+
+//write data to the cart
+void cart_write(uint16_t addr, uint8_t data);
+
+//get cart's size
+int cart_size();

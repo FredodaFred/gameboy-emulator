@@ -62,3 +62,11 @@ void hexDump (const char * desc, const void * addr, const int len, int perLine) 
 
     printf ("  %s\n", buff);
 }
+
+/* HOW DOES C HANDLE OVERFLOW
+    uint8_t a = 0xFF;
+    a++;
+    printf("0xFF (%d) + 1: %d\n", 0xFF, a);
+
+   THIS GIVES US: 0xFF (255) + 1 =  0
+*/

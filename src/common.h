@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 //https://stackoverflow.com/questions/7775991/how-to-get-hexdump-of-a-structure-data
 // Usage:

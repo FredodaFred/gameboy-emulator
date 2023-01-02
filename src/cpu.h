@@ -97,6 +97,10 @@ void ld_a16_r(reg reg1, uint16_t a16);
 //load to r from a16
 void ld_r_a16(reg reg1, uint16_t a16);
 
+//step the cpu
+bool cpu_step();
+
+
 /* Test Helpers */
 uint8_t get_a_reg();
 uint8_t get_f_reg();

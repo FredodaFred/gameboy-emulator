@@ -1,9 +1,10 @@
 #include <stdlib.h>
 #include "cart.h"
 
-
 uint8_t *rom_data;
 RomHeader* rom_header;
+bool cart_loaded = false;
+int rom_size;
 static const char *ROM_TYPES[] = {
     "ROM ONLY",
     "MBC1",
@@ -106,6 +107,37 @@ static const char *LIC_CODE[0xA5] = {
     [0xA4] = "Konami (Yu-Gi-Oh!)"
 };
 
+const char *cart_lic_name() {
+    if (rom_header->new_lic_code <= 0xA4) {
+        return LIC_CODE[rom_header->lic_code];
+    }
+
+    return "UNKNOWN OR NEW LIC CODE";
+}
+
+const char *cart_type_name() {
+    if (rom_header->type <= 0x22) {
+        return ROM_TYPES[rom_header->type];
+    }
+
+    return "UNKNOWN";
+}
+
+const char *ram_size(uint8_t size){
+    if(size == 0)
+        return "No Ram";
+    else if(size == 1)
+        return "Unused";
+    else if(size == 2)
+        return "8 KiB";
+    else if(size == 3)
+        return "32 KiB";
+    else if(size == 4)
+        return "128 KiB";
+    else if(size == 5)
+        return "64 KiB";
+    return "Unknown";
+}
 bool cart_load(char* file_name){
     FILE *fptr;
     fptr = fopen(file_name,"r");
@@ -115,16 +147,50 @@ bool cart_load(char* file_name){
       exit(1);             
     }
     fseek(fptr, 0, SEEK_END);
-    int rom_size = ftell(fptr);
+    rom_size = ftell(fptr);
     printf("Rom size: %d bytes\n", rom_size);
     rewind(fptr);
 
     rom_data = malloc(rom_size);
     fread(rom_data, rom_size, 1, fptr);
-    
-    rom_header = (RomHeader* )(rom_data + 0x104);
-    hexDump("Gameboy Header", rom_header, 29*4, 16);
-    free(rom_data);
     fclose(fptr);
+    //hexDump("Gameboy Header", rom_data + 0x104, 0x29, 16);
+    rom_header = (RomHeader*)(rom_data + 0x100);
+
+    printf("Cartridge Loaded:\n");
+    printf("\t Title    : %s\n", rom_header->title);
+    printf("\t Type     : %2.2X (%s)\n", rom_header->type, cart_type_name());
+    printf("\t ROM Size : %d KB\n", 32 << rom_header->rom_size);
+    printf("\t RAM Size : %2.2X (%s)\n", rom_header->ram_size, ram_size(rom_header->ram_size));
+    printf("\t LIC Code : %2.2X (%s)\n", rom_header->lic_code, cart_lic_name());
+    printf("\t ROM Vers : %2.2X\n", rom_header->version);
+    uint16_t x = 0;
+    for (uint16_t i=0x0134; i<=0x014C; i++) { x = x - rom_data[i] - 1;}
+    printf("\t Checksum : %2.2X (%s)\n", rom_header->checksum, (x & 0xFF) ? "PASSED" : "FAILED");
+    cart_loaded = true;
     return true;
+}
+
+bool cart_close(){
+    free(rom_data);
+    return true;
+}
+
+uint8_t cart_read(uint16_t addr){
+    if(!cart_loaded){
+        printf("Tried to read from card without loading it first\n");
+        return 0;
+    }
+    return rom_data[addr];
+}
+
+void cart_write(uint16_t addr, uint8_t data){
+        if(!cart_loaded){
+            printf("Tried to read from card without loading it first\n");
+        }
+    rom_data[addr] = data;
+}
+
+int cart_size(){
+    return rom_size;
 }

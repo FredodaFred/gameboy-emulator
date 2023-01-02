@@ -1,6 +1,12 @@
 #pragma once
 
 #include "common.h"
+#include "cart.h"
+#include "bus.h"
+#include "cpu.h"
+
+void emu_begin();
+
 
 /* Increment Clock by 1 */
 uint64_t tick();
