@@ -72,8 +72,7 @@ void bus_write(uint16_t addr, uint8_t data){
         //TODO
         printf("UNSUPPORTED bus_read(%04X)\n", addr);
     } else if (addr == 0xFFFF) {
-        //CPU ENABLE REGISTER...
-        //TODO
+        set_interrupt_reg(data);
         return;
     }
     return;

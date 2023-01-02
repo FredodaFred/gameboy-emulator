@@ -12,6 +12,7 @@ uint8_t h_reg = 0x01;
 uint8_t l_reg = 0x4D;
 uint16_t sp_reg = 0xFFFE;
 uint16_t pc_reg = 0x100; 
+uint8_t interrupt_reg;
 
 
 /* Access and modify flag register */
@@ -55,8 +56,21 @@ void set_flag(bool val, uint8_t flag){
     }
 }
 
-/* Instruction Functions */
+//assist with instrucitons that have conditions
+bool check_cond(cond_type cond){
+    bool z = zero_flag();
+    bool c = carry_flag();
+    switch(cond){
+        case(CT_NONE): return true;
+        case(CT_C):  return c;
+        case(CT_NC): return !c;
+        case(CT_Z):  return z;
+        case(CT_NZ): return !z;
+    }
+    return false;
+}
 
+/* Instruction Functions */
 
 /* Load Functions */
 void ld_r_16(reg reg1,  uint16_t d16){
@@ -216,7 +230,7 @@ void ld_mr_r(reg reg1, reg reg2){
             data = l_reg;
             break; 
         default:
-           printf("Invalid reg2 on ld_mr_r\n"); 
+           printf("Invalid reg2 on ld_mr_r:  REG: %d, %s\n", reg2, reg_to_symbol(reg2)); 
     }
     switch(reg1){
         uint16_t addr;
@@ -237,7 +251,7 @@ void ld_mr_r(reg reg1, reg reg2){
             bus_write(addr, data); 
             break;
         default:
-            printf("Invalid reg1 on ld_mr_r\n");
+           printf("Invalid reg1 on ld_mr_r:  REG: %d, %s\n", reg1, reg_to_symbol(reg1)); 
     }  
 }
 
@@ -526,7 +540,7 @@ void ldh_mr_r(reg reg1, reg reg2){
             data = l_reg;
             break; 
         default:
-           printf("Invalid reg2 on ld_mr_r\n"); 
+           printf("Invalid reg2 on ldh_mr_r\n"); 
            return;
     }  
     uint16_t addr = ((uint16_t)data) | ( (uint16_t)(0xFF << 8) );
@@ -622,7 +636,7 @@ void ld_a8_r(reg reg1, uint8_t a8){
             data = l_reg;
             break; 
         default:
-           printf("Invalid reg2 on ld_mr_r\n"); 
+           printf("Invalid reg2 on ld_a8_r\n"); 
            return;
     }  
     uint16_t addr = ((uint16_t)a8) | ( (uint16_t)(0xFF << 8) );
@@ -657,7 +671,7 @@ void ld_a16_r(reg reg1, uint16_t a16){
             data = l_reg;
             break; 
         default:
-           printf("Invalid reg2 on ld_mr_r\n"); 
+           printf("Invalid reg2 on ld_a16_r\n"); 
            return;
     } 
     bus_write(a16, data);
@@ -719,6 +733,97 @@ void ld_hl_spr(int8_t r8){
     set_flag( (( (sp_reg & 0xFF)+ (r8 & 0xFF)) > 0xFF) ? 1 : 0,  4); //C
 }
 
+/* PUSH AND POP INSTRUCTIONS */
+
+void push(reg reg1){
+
+    uint16_t hi = 0;
+    uint16_t lo = 0;
+    if(reg1 == AF){
+        hi = get_a_reg();
+        tick();
+        lo = get_f_reg();
+        tick();
+    }
+    else if(reg1 == BC){
+        hi = get_b_reg();
+        tick();
+        lo = get_c_reg();
+        tick();
+    }
+    else if(reg1 == DE){
+        hi = get_d_reg();
+        tick();
+        lo = get_e_reg();
+        tick();
+    }
+    else if(reg1 == HL){
+        hi = get_h_reg();
+        tick();
+        lo = get_l_reg();
+        tick();
+    }
+    stkpush(hi);
+    stkpush(lo);
+    tick();
+}
+
+void pop(reg reg1){
+    uint8_t hi = stkpop();
+    tick();
+    uint8_t lo = stkpop();
+    tick();
+    //uint16_t data = (hi << 8) | lo;
+    if(reg1 == AF){
+        set_a_reg(hi);
+        set_f_reg(lo & 0xF0); //QUESTIONABLE
+    }
+    else if(reg1 == BC){
+        set_b_reg(hi);
+        set_c_reg(lo);
+    }
+    else if(reg1 == DE){
+        set_d_reg(hi);
+        set_e_reg(lo);
+    }
+    else if(reg1 == HL){
+        set_h_reg(hi);
+        set_l_reg(lo);
+    }
+}
+
+void jump(reg reg1, addr_mode mode, cond_type cond){
+    if(!check_cond(cond)){
+        return;
+    }
+    if(reg1 == HL){
+
+    }
+    uint16_t LSB = bus_read(pc_reg); //lo
+    pc_reg++;
+    tick();
+    uint16_t MSB = bus_read(pc_reg); //hi
+    pc_reg++;
+    tick();
+    pc_reg = (MSB << 8) | LSB;
+}
+
+void call(reg reg1, addr_mode mode, cond_type cond){
+    if(!check_cond(cond)){
+        return;
+    }
+    tick();
+    tick();
+    stkpush16(pc_reg);
+
+    uint16_t LSB = bus_read(pc_reg); //lo
+    pc_reg++;
+    tick();
+    uint16_t MSB = bus_read(pc_reg); //hi
+    pc_reg++;
+    tick();
+    pc_reg = (MSB << 8) | LSB;
+}
 /* ----- CPU FUNCTIONALITY ----- */
 
 CPU_STATE cpu = {0, false, false, 0};
@@ -1033,12 +1138,13 @@ void execute_instruction(){
 
     }
     else if(instruction->type == POP){
-        
+        pop(instruction->reg_1);
     }
     else if(instruction->type == JP){
-
+        jump(instruction->reg_1, instruction->mode, instruction->cond);
     }
     else if(instruction->type == PUSH){
+        push(instruction->reg_1);
         
     }
     else if(instruction->type == RET){
@@ -1048,7 +1154,7 @@ void execute_instruction(){
         
     }
     else if(instruction->type == CALL){
-
+        call(instruction->reg_1, instruction->mode, instruction->cond);
     }
     else if(instruction->type == RETI){
         
@@ -1114,16 +1220,16 @@ void fetch_instruction(){
 bool cpu_step(){
     if(!cpu.halted){
         fetch_instruction();
-        execute_instruction();
-        printf("Current Instruction: %s (%02X) // Registers: A %02X B %02X C %02X D %02X F %02X H %02X L %02X PC %04X SP %04X\n"
+        printf("Current Instruction: %6s (%02X)  // Registers: A %02X B %02X C %02X D %02X F %02X H %02X L %02X PC %04X SP %04X\n"
         ,inst_name(cpu.currInstr->type), cpu.currInstrOpcode, a_reg, b_reg, c_reg, d_reg, flag_reg, h_reg, l_reg, pc_reg, sp_reg);
+        execute_instruction();
         return true;
     }
 
     return false;
 }
 
-/* testing helpers */
+/* getters and setters*/
 uint8_t get_a_reg(){ return a_reg; }
 uint8_t get_f_reg(){ return flag_reg; }
 uint8_t get_b_reg(){ return b_reg; }
@@ -1134,6 +1240,7 @@ uint8_t get_h_reg(){ return h_reg; }
 uint8_t get_l_reg(){ return l_reg; }
 uint16_t   get_sp(){ return sp_reg;}
 uint16_t   get_pc(){ return pc_reg;}
+uint8_t get_interrupt_reg(){return interrupt_reg;}
 void set_a_reg(uint8_t x){a_reg = x;}
 void set_f_reg(uint8_t x){flag_reg = x;}
 void set_b_reg(uint8_t x){b_reg = x;}
@@ -1144,3 +1251,5 @@ void set_h_reg(uint8_t x){h_reg = x;}
 void set_l_reg(uint8_t x){l_reg = x;}
 void   set_sp(uint16_t x){sp_reg = x;}
 void   set_pc(uint16_t x){pc_reg = x;}
+
+void set_interrupt_reg(uint8_t x){interrupt_reg = x;}

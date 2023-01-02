@@ -69,3 +69,7 @@ char *inst_name(instr_type t);
  * @Return - data about instruction
  **/
 Instruction* instr_lookup(uint8_t opcode);
+
+
+//input enum reg type output its char symbol
+char* reg_to_symbol(reg r);

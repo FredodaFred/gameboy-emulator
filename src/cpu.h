@@ -3,6 +3,7 @@
 #include "common.h"
 #include "bus.h"
 #include "instructions.h"
+#include "stack.h"
 #include "emu.h"
 
 /* CPU UTIL */
@@ -97,6 +98,9 @@ void ld_a16_r(reg reg1, uint16_t a16);
 //load to r from a16
 void ld_r_a16(reg reg1, uint16_t a16);
 
+void push(reg reg1);
+void pop(reg reg1);
+
 //step the cpu
 bool cpu_step();
 
@@ -110,6 +114,8 @@ uint8_t get_d_reg();
 uint8_t get_e_reg();
 uint8_t get_h_reg();
 uint8_t get_l_reg();
+uint8_t get_interrupt_reg();
+//gets content of the stack pointer register
 uint16_t   get_sp();
 uint16_t   get_pc();
 
@@ -121,5 +127,9 @@ void set_d_reg(uint8_t x);
 void set_e_reg(uint8_t x);
 void set_h_reg(uint8_t x);
 void set_l_reg(uint8_t x);
+void set_interrupt_reg(uint8_t x);
+//set content of stack pointer register
 void   set_sp(uint16_t x);
 void   set_pc(uint16_t x);
+
+bool check_cond(cond_type cond);

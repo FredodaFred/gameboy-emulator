@@ -45,9 +45,40 @@ Instruction instruction_lookup_table[0x100] = {
     [0xE0] = {LDH, A8_R, A, R_NONE, CT_NONE}, [0xE2] = {LD, MR_R, C, A, CT_NONE}, [0xEA] = {LDH, A16_R, A, R_NONE, CT_NONE},  
                                                //LD ($FF00+A),C
     [0xF0] = {LDH, R_A8, A, R_NONE, CT_NZ},   [0xF2] = {LD, R_MR, A, C, CT_NONE}, [0xF8] = {LD, HL_SPR, HL, SP, CT_NONE}, [0xF9] = {LD, R_R, SP, HL, CT_NONE}, [0xFA] = {LD, R_A16, A, R_NONE, CT_NONE},
-
+    
+    //POP INSTRUCTIONS
+    [0xC1] = {POP, R, BC, R_NONE, CT_NONE}, [0xD1] = {POP, R, DE, R_NONE, CT_NONE}, [0xE1] = {POP, R, HL, R_NONE, CT_NONE}, [0xF1] = {POP, R, AF, R_NONE, CT_NONE},
+    //PUSH INSTRUCTIONS
+    [0xC5] = {PUSH, R, BC, R_NONE, CT_NONE}, [0xD5]= {PUSH, R, DE, R_NONE, CT_NONE}, [0xE5]= {PUSH, R, HL, R_NONE, CT_NONE},  [0xF5]= {PUSH, R, AF, R_NONE, CT_NONE},
+    //JUMP INSTRUCTIONS
+    [0xC2] = {JP, D16, R_NONE, R_NONE, CT_NZ}, [0xC3] ={JP, D16, R_NONE, R_NONE, CT_NONE}, [0xCA] = {JP, D16, R_NONE, R_NONE, CT_Z}, [0xD2] = {JP, D16, R_NONE, R_NONE, CT_NC}, [0xDA] = {JP, D16, R_NONE, R_NONE, CT_C}, [0xE9] = {JP, MR, HL, R_NONE, CT_NONE}, 
+    //CALL INSTRUCTIONS
+    [0xC4] = {CALL, D16, R_NONE, R_NONE, CT_NZ}, [0xCC] = {CALL, D16, R_NONE, R_NONE, CT_Z}, [0xCD] = {CALL, D16, R_NONE, R_NONE, CT_NONE}, [0xD4] = {CALL, D16, R_NONE, R_NONE, CT_NC}, [0xDC] = {CALL, D16, R_NONE, R_NONE, CT_C},
 };
 
 char *inst_name(instr_type t) { return instr_type_to_name[t]; }
 
 Instruction* instr_lookup(uint8_t opcode) { return &instruction_lookup_table[opcode]; }
+
+
+
+char* reg_to_symbol(reg r){
+    switch(r){
+        case(R_NONE): return "No Register";
+        case(A): return "A";
+        case(B): return "B";
+        case(C): return "C";
+        case(D): return "D";
+        case(E): return "E";
+        case(F): return "F";
+        case(H): return "H";
+        case(L): return "L";
+        case(AF): return "AF";
+        case(BC): return "BC";
+        case(DE): return "DE";
+        case(HL): return "HL";
+        case(SP): return "SP";
+        case(PC): return "PC";
+        default: return "Invalid register lookup";
+    }
+}

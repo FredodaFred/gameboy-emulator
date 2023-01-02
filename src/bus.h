@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "cart.h"
+#include "cpu.h"
 
 #define WRAMSIZE 0x2000
 #define HRAMSIZE 0x80
