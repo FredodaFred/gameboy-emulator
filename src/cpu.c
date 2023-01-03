@@ -14,6 +14,8 @@ uint16_t sp_reg = 0xFFFE;
 uint16_t pc_reg = 0x100; 
 uint8_t interrupt_reg;
 
+bool enableInterrupt = true; //NOT SO SURE
+
 
 /* Access and modify flag register */
 
@@ -733,7 +735,7 @@ void ld_hl_spr(int8_t r8){
     set_flag( (( (sp_reg & 0xFF)+ (r8 & 0xFF)) > 0xFF) ? 1 : 0,  4); //C
 }
 
-/* PUSH AND POP INSTRUCTIONS */
+/* JUMP, PUSH AND POP INSTRUCTIONS */
 
 void push(reg reg1){
 
@@ -823,6 +825,49 @@ void call(reg reg1, addr_mode mode, cond_type cond){
     pc_reg++;
     tick();
     pc_reg = (MSB << 8) | LSB;
+}
+
+void jumpr(cond_type cond){
+    //get r8
+    char rel = (char)bus_read(pc_reg);
+    pc_reg++;
+    tick();
+    uint16_t addr = pc_reg + rel;
+
+    if(!check_cond(cond)){
+        return;    
+    }
+    pc_reg = addr;
+    tick();
+}
+
+void ret(cond_type cond){
+    if(cond != CT_NONE){
+        tick();
+    }
+    if(check_cond(cond)){
+        uint16_t lo = stkpop();
+        tick();
+        uint16_t hi = stkpop();
+        tick();      
+        uint16_t dest = (hi << 8) | lo;
+        pc_reg = dest; 
+        tick();
+    }
+}
+
+void reti(){
+    enableInterrupt = true;
+    ret(CT_NONE);
+}
+
+void rst(uint8_t param){
+    tick();
+    tick();
+    stkpush16(pc_reg);
+    pc_reg = param;
+    tick();
+ 
 }
 /* ----- CPU FUNCTIONALITY ----- */
 
@@ -1096,7 +1141,7 @@ void execute_instruction(){
 
     }
     else if(instruction->type == JR){
-        
+        jumpr(instruction->cond);
     }
     else if(instruction->type == RRA){
 
@@ -1122,7 +1167,7 @@ void execute_instruction(){
     else if(instruction->type == SUB){
         
     }  
-   else if(instruction->type == SBC){
+    else if(instruction->type == SBC){
 
     }
     else if(instruction->type == AND){
@@ -1148,7 +1193,7 @@ void execute_instruction(){
         
     }
     else if(instruction->type == RET){
-
+        ret(instruction->cond);
     }
     else if(instruction->type == CB){
         
@@ -1157,7 +1202,7 @@ void execute_instruction(){
         call(instruction->reg_1, instruction->mode, instruction->cond);
     }
     else if(instruction->type == RETI){
-        
+        reti();
     }
     else if(instruction->type == JPHL){
 
@@ -1169,9 +1214,9 @@ void execute_instruction(){
 
     }
     else if(instruction->type == RST){
-        
+        rst(instruction->param);
     }   
-     else if(instruction->type == ERR){
+    else if(instruction->type == ERR){
 
     }
     else if(instruction->type == RLC){

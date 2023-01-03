@@ -100,6 +100,9 @@ void ld_r_a16(reg reg1, uint16_t a16);
 
 void push(reg reg1);
 void pop(reg reg1);
+void call(reg reg1, addr_mode mode, cond_type cond);
+void jump(reg reg1, addr_mode mode, cond_type cond);
+void jumpr(cond_type cond);
 
 //step the cpu
 bool cpu_step();

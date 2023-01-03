@@ -55,6 +55,7 @@ typedef struct Instruction{
     reg reg_1;
     reg reg_2;
     cond_type cond;
+    uint8_t param;
 } Instruction;
 
 

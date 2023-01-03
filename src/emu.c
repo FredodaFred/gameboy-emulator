@@ -20,7 +20,7 @@ void emu_begin(){
     // }
     while(running){
         cpu_step();
-        if(clock_ticks > 100){
+        if(clock_ticks > 200){
             exit(-1);
         }
     }

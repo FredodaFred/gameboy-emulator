@@ -54,6 +54,18 @@ Instruction instruction_lookup_table[0x100] = {
     [0xC2] = {JP, D16, R_NONE, R_NONE, CT_NZ}, [0xC3] ={JP, D16, R_NONE, R_NONE, CT_NONE}, [0xCA] = {JP, D16, R_NONE, R_NONE, CT_Z}, [0xD2] = {JP, D16, R_NONE, R_NONE, CT_NC}, [0xDA] = {JP, D16, R_NONE, R_NONE, CT_C}, [0xE9] = {JP, MR, HL, R_NONE, CT_NONE}, 
     //CALL INSTRUCTIONS
     [0xC4] = {CALL, D16, R_NONE, R_NONE, CT_NZ}, [0xCC] = {CALL, D16, R_NONE, R_NONE, CT_Z}, [0xCD] = {CALL, D16, R_NONE, R_NONE, CT_NONE}, [0xD4] = {CALL, D16, R_NONE, R_NONE, CT_NC}, [0xDC] = {CALL, D16, R_NONE, R_NONE, CT_C},
+    //JUMP RETURN
+    [0x18] ={JR, R_D8, R_NONE, R_NONE, CT_NONE}, [0x20] = {JR, R_D8, R_NONE, R_NONE, CT_NZ}, [0x28] = {JR, R_D8, R_NONE, R_NONE, CT_Z}, [0x30] = {JR, R_D8, R_NONE, R_NONE, CT_NC}, [0x38] = {JR, R_D8, R_NONE, R_NONE, CT_C},
+    //RET 
+    [0xC0] = {RET, IMP, R_NONE, R_NONE, CT_NZ}, [0xC8] = {RET, IMP, R_NONE, R_NONE, CT_NZ}, [0xC9] = {RET, IMP, R_NONE, R_NONE, CT_NONE}, [0xD0] = {RET, IMP, R_NONE, R_NONE, CT_NC}, [0xD8] = {RET, IMP, R_NONE, R_NONE, CT_C},
+    //RETI
+    [0xD9] = {RETI, IMP, R_NONE, R_NONE, CT_NONE},
+    //RST
+    [0xC7] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x00}, [0xCF] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x08}, [0xD7] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x10}, [0xDF] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x18}, [0xE7] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x20}, [0xEF] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x28}, [0xF7] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x30}, [0xFF] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x38}, 
+    //INC
+    [0x03] = {INC, R, BC}, [0x04] = {INC, R, B}, [0x0C] = {INC, R}, [0x0D] = {}, [0x13] = {INC, R, DE}, [0x14] = {INC, R, D}, [0x1C] = {INC, R, E},  [0x23] = {INC, R, HL}, [0x24] = {INC, R, H}, [0x2C] = {INC, R, L}, [0x33] = {INC, R, SP}, [0x34] = {INC, MR, HL}, [0x3C] = {INC, R, A},
+
+
 };
 
 char *inst_name(instr_type t) { return instr_type_to_name[t]; }
