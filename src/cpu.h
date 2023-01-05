@@ -122,6 +122,12 @@ uint8_t get_interrupt_reg();
 uint16_t   get_sp();
 uint16_t   get_pc();
 
+//retrieve reg value from enum type
+uint16_t read_reg(reg regt);
+
+//set reg value base on enum
+void set_reg(reg regt, uint16_t val);
+
 void set_a_reg(uint8_t x);
 void set_f_reg(uint8_t x);
 void set_b_reg(uint8_t x);

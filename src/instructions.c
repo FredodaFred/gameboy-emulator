@@ -63,8 +63,23 @@ Instruction instruction_lookup_table[0x100] = {
     //RST
     [0xC7] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x00}, [0xCF] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x08}, [0xD7] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x10}, [0xDF] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x18}, [0xE7] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x20}, [0xEF] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x28}, [0xF7] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x30}, [0xFF] = {RST, IMP, R_NONE, R_NONE, CT_NONE, 0x38}, 
     //INC
-    [0x03] = {INC, R, BC}, [0x04] = {INC, R, B}, [0x0C] = {INC, R}, [0x0D] = {}, [0x13] = {INC, R, DE}, [0x14] = {INC, R, D}, [0x1C] = {INC, R, E},  [0x23] = {INC, R, HL}, [0x24] = {INC, R, H}, [0x2C] = {INC, R, L}, [0x33] = {INC, R, SP}, [0x34] = {INC, MR, HL}, [0x3C] = {INC, R, A},
-
+    [0x03] = {INC, R, BC}, [0x04] = {INC, R, B}, [0x0C] = {INC, R}, [0x13] = {INC, R, DE}, [0x14] = {INC, R, D}, [0x1C] = {INC, R, E},  [0x23] = {INC, R, HL}, [0x24] = {INC, R, H}, [0x2C] = {INC, R, L}, [0x33] = {INC, R, SP}, [0x34] = {INC, MR, HL}, [0x3C] = {INC, R, A},
+    //DEC
+    [0x05] = {DEC, R, B}, [0x0B] = {DEC, R, BC}, [0x0D] = {DEC, R, C}, [0x15] = {DEC, R, D}, [0x1B] = {DEC, R, DE}, [0x1D] = {DEC, R, E}, [0x25] = {DEC, R, H}, [0x2B] = {DEC, R, HL}, [0x2D] = {DEC, R, L}, [0x35] = {DEC, MR, HL}, [0x3B] = {DEC, R, SP}, [0x3D] = {DEC, R, A},
+    //ADD
+    [0x09] ={ADD, R_R, HL, BC}, [0x19]={ADD, R_R, HL, DE}, [0x29] = {ADD, R_R, HL, HL}, [0x39] = {ADD, R_R, HL, SP}, [0x80] = {ADD, R_R, A, B}, [0x81] = {ADD, R_R, A, C}, [0x82] = {ADD, R_R, A, B}, [0x83] = {ADD, R_R, A, E}, [0x84] = {ADD, R_R, A, H}, [0x85] = {ADD, R_R, A, L}, [0x86] = {ADD, R_MR, A, HL}, [0x87] = {ADD, R_MR, A, A}, [0xC6] = {ADD, R_A8, A}, [0xE8] = {ADD, R_D8, SP},
+    //ADC
+    [0x88] = {ADC, R_R, B}, [0x89] = {ADC, R_R, C}, [0x8A] = {ADC, R_R, D}, [0x8B] = {ADC, R_R, E}, [0x8C] = {ADC, R_R, H}, [0x8D] = {ADC, R_R, L}, [0x8E] = {ADC, R_MR, HL}, [0x8F] = {ADC, R_R, A}, [0xCE] = {ADC, R_D8, R_NONE},
+    //SUB
+    [0x90] = {SUB, R, B}, [0x91] = {SUB, R, C}, [0x92] = {SUB, R, D}, [0x93] = {SUB, R, E}, [0x94] = {SUB, R, H}, [0x95] = {SUB, R, L}, [0x96] = {SUB, MR, HL}, [0x97] = {SUB, R, A}, [0xD6] = {SUB, D8, R_NONE},
+    //SBC
+    [0x98] = {SBC, R_R, B}, [0x99] = {SBC, R_R, C},[0x9A] = {SBC, R_R, D},[0x9B] = {SBC, R_R, E},[0x9C] = {SBC, R_R, H},[0x9D] = {SBC, R_R, L},[0x9E] = {SBC, R_MR, HL},[0x9F] = {SBC, R_R, A}, [0xDE] = {SBC, R_D8, R_NONE},
+    //AND
+    [0xA0] = {AND, R_R, B}, [0xA1] = {AND, R_R, C}, [0xA2] = {AND, R_R, D}, [0xA3] = {AND, R_R, E}, [0xA4] = {AND, R_R, H}, [0xA5] = {AND, R_R, L}, [0xA6] = {AND, R_MR, HL}, [0xA7] = {AND, R_R, A}, [0xE6] = {AND, R_D8, R_NONE},
+    //XOR
+    [0xA8] = {XOR, R_R, B}, [0xA9] = {XOR, R_R, C}, [0xAA] = {XOR, R_R, D}, [0xAB] = {XOR, R_R, E}, [0xAC] = {XOR, R_R, H}, [0xAD] = {XOR, R_R, L}, [0xAE] = {XOR, R_MR, HL}, [0xAF] = {XOR, R_R, A}, [0xEE] = {XOR, R_D8, R_NONE},  
+    //OR
+    [0xB0] = {OR, R_R, B}, [0xB1] = {OR, R_R, C}, [0xB2] = {OR, R_R, D}, [0xB3] = {OR, R_R, E}, [0xB4] = {OR, R_R, H}, [0xB5] = {OR, R_R, L}, [0xB6] = {OR, R_MR, HL}, [0xB7] = {OR, R_R, A}, [0xF6] = {OR, R_D8, R_NONE},  
 
 };
 
