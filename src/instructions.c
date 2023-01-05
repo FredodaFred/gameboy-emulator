@@ -80,6 +80,21 @@ Instruction instruction_lookup_table[0x100] = {
     [0xA8] = {XOR, R_R, B}, [0xA9] = {XOR, R_R, C}, [0xAA] = {XOR, R_R, D}, [0xAB] = {XOR, R_R, E}, [0xAC] = {XOR, R_R, H}, [0xAD] = {XOR, R_R, L}, [0xAE] = {XOR, R_MR, HL}, [0xAF] = {XOR, R_R, A}, [0xEE] = {XOR, R_D8, R_NONE},  
     //OR
     [0xB0] = {OR, R_R, B}, [0xB1] = {OR, R_R, C}, [0xB2] = {OR, R_R, D}, [0xB3] = {OR, R_R, E}, [0xB4] = {OR, R_R, H}, [0xB5] = {OR, R_R, L}, [0xB6] = {OR, R_MR, HL}, [0xB7] = {OR, R_R, A}, [0xF6] = {OR, R_D8, R_NONE},  
+    //CP
+    [0xB8] = {CP, R_R, B}, [0xB9] = {CP, R_R, C}, [0xBA] = {CP, R_R, D}, [0xBB] = {CP, R_R, E}, [0xBC] = {CP, R_R, H}, [0xBD] = {CP, R_R, L}, [0xBE] = {CP, R_MR, HL}, [0xBF] = {CP, R_R, A}, [0xFE] = {CP, R_D8, R_NONE}, 
+    //OTHER INSTRUCTIONS
+    [0xCB] = {CB},
+    [0x07] = {RLCA},
+    [0x0F] = {RRCA},
+    [0x10] = {STOP},
+    [0x17] = {RLA},
+    [0x1F] = {RRA},
+    [0x27] = {DAA},
+    [0x2F] = {CPL},
+    [0x37] = {SCF},
+    [0x3F] = {CCF},
+    [0xF3] = {DI},
+    [0xFB] = {EI},
 
 };
 

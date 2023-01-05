@@ -13,3 +13,6 @@
 //         len:     the number of bytes to dump.
 //         perLine: number of bytes on each output line.
 void hexDump (const char * desc, const void * addr, const int len,int perLine);
+
+//Given the flag register, return Z N H C in string represenation
+char* flagBinaryString(uint8_t f);

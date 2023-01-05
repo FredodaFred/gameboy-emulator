@@ -1,5 +1,16 @@
 #include "common.h"
 
+
+char* flagBinaryString(uint8_t f){
+    // bool Z = (f >> 7);
+    // bool N = (f << 1) >> 7;
+    // bool H = (f << 2) >> 7;
+    // bool C = (f << 3) >> 7;
+    // char* ret = { Z ? 'Z' : '-', N ? 'N' : '-', H ? 'H' : '-', C ? 'C' : '-'};
+    // //printf("%s\n", ret);
+    return "ret";
+}
+
 void hexDump (const char * desc, const void * addr, const int len, int perLine) {
     // Silently ignore silly per-line values.
     if (perLine < 4 || perLine > 64) perLine = 16;

@@ -68,11 +68,9 @@ void bus_write(uint16_t addr, uint8_t data){
         //reserved unusable...
         return;
     } else if (addr < 0xFF80) {
-        //IO Registers...
-        //TODO
-        printf("UNSUPPORTED bus_read(%04X)\n", addr);
+        io_write(addr, data);
     } else if (addr == 0xFFFF) {
-        set_interrupt_reg(data);
+        set_ie_reg(data);
         return;
     }
     return;
@@ -103,10 +101,9 @@ uint8_t bus_read(uint16_t addr){
     } else if (addr < 0xFF80) {
         //IO Registers...
         //TODO
-        printf("UNSUPPORTED bus_read(%04X)\n", addr);
+        io_read(addr);
     } else if (addr == 0xFFFF) {
-        //CPU ENABLE REGISTER...
-        //TODO
+        get_ie_reg();
         return 0;
     }
     return 0;

@@ -3,6 +3,7 @@
 #include "common.h"
 #include "cart.h"
 #include "cpu.h"
+#include "io.h"
 
 #define WRAMSIZE 0x2000
 #define HRAMSIZE 0x80

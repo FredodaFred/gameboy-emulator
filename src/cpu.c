@@ -1,6 +1,8 @@
 #include "cpu.h"
 
-/* ------ CPU REGISTERS -------- */
+CPU_STATE cpu = {0, false, false, 0};
+
+/* -------- CPU REGISTERS -------- */
 
 uint8_t a_reg = 0x01;
 uint8_t flag_reg = 0xB0; // (f)
@@ -12,10 +14,37 @@ uint8_t h_reg = 0x01;
 uint8_t l_reg = 0x4D;
 uint16_t sp_reg = 0xFFFE;
 uint16_t pc_reg = 0x100; 
-uint8_t interrupt_reg;
 
-bool enableInterrupt = true; //NOT SO SURE
+/* -------- Interrupts -------- */
 
+//The IME flag is used to disable all interrupts, overriding any enabled bits in the IE register.
+bool IME = false;
+//Marks interrupt that are enabled
+uint8_t ie_reg = 0x0;
+//Any set bits in the IF register are only requesting an interrupt
+uint8_t if_reg = 0x0;
+
+void handle_interrupt(){
+    stkpush16(pc_reg);
+    if((if_reg & IT_VBLANK) && (ie_reg & IT_VBLANK)){
+        pc_reg = 0x40;
+    }
+    else if( (if_reg & IT_LCD_STAT) && (ie_reg & IT_LCD_STAT)){
+        pc_reg = 0x48;
+    }
+    else if((if_reg & IT_TIMER) && (ie_reg & IT_TIMER)){
+        pc_reg = 0x50;
+    }
+    else if((if_reg & IT_SERIAL) && (ie_reg & IT_SERIAL)){
+        pc_reg = 0x58;
+    }   
+    else if((if_reg & IT_JOYPAD) && (ie_reg & IT_JOYPAD)){
+        pc_reg = 0x60;
+    } 
+    if_reg &= ~if_reg;
+    cpu.halted = false;    
+    IME = false;
+}
 
 /* Access and modify flag register */
 
@@ -899,7 +928,7 @@ void ret(cond_type cond){
 }
 
 void reti(){
-    enableInterrupt = true;
+    IME = true;
     ret(CT_NONE);
 }
 
@@ -1147,9 +1176,257 @@ void or(reg reg1, uint8_t currOP){
     set_flag(0, 4);
     tick();
 }
+
+void cp(reg reg1, uint8_t currOP){
+    uint8_t data = 0;
+    if(currOP == 0xBE){
+        data = bus_read(read_reg(HL));
+        tick();
+    }
+    else if (currOP == 0xFE){
+        data = bus_read(pc_reg);
+        pc_reg++;
+        tick();
+    }
+    else{
+        data = read_reg(reg1);
+    }   
+
+    int res = (int)a_reg - (int)data;
+    set_flag(res == 0, 7);
+    set_flag(1, 6);
+    set_flag( (((int)a_reg & 0x0F) - ((int)data)& 0x0F ) < 0, 5);
+    set_flag(res < 0, 4);
+    tick();
+}
+
+reg cb_reg_lookup[] = {B, C, D, E, H, L, HL, A};
+
+void cb(){
+    uint8_t cb_op = bus_read(pc_reg);
+    pc_reg++;
+    tick();
+    
+    //figuring out info for the cb instr
+    reg cb_reg = ((cb_op & 0b111) > 0b111) ? R_NONE : cb_reg_lookup[(cb_op & 0b111)];
+    uint8_t bit = (cb_op >> 3) & 0b111;
+    uint8_t bit_op = (cb_op >> 6) & 0b11;
+    uint8_t reg_val = read_reg(cb_reg);
+
+    if(cb_reg == HL){ tick(); tick(); }
+    tick(); //unsure about this tick
+    switch(bit_op) {
+        case 1:
+            //BIT
+            set_flag(!(reg_val & (1 << bit)), 7);
+            set_flag(0, 6);
+            set_flag(1, 5);
+            return;
+        case 2:
+            //RST
+            reg_val &= ~(1 << bit);
+            set_reg(cb_reg, reg_val);
+            return;
+        case 3:
+            //SET
+            reg_val |= (1 << bit);
+            set_reg(cb_reg, reg_val);
+            return;
+    }  
+
+    switch(bit) {
+        case 0: {
+            //RLC
+            bool setC = false;
+            uint8_t result = (reg_val << 1) & 0xFF;
+            if ((reg_val & (1 << 7)) != 0) {
+                result |= 1;
+                setC = true;
+            }
+            set_reg(cb_reg, result);
+            set_flag(result == 0, 7);
+            set_flag(0, 6);
+            set_flag(0, 5);
+            set_flag(4, setC);
+        } return;
+
+        case 1: {
+            //RRC
+            uint8_t old = reg_val;
+            reg_val >>= 1;
+            reg_val |= (old << 7);
+
+            set_reg(cb_reg, reg_val);
+            set_flag(!reg_val, 7);
+            set_flag(0, 6);
+            set_flag(0, 5);
+            set_flag(old & 1, 4);
+        } return;
+
+        case 2: {
+            //RL
+            uint8_t old = reg_val;
+            reg_val <<= 1;
+            reg_val |= carry_flag();
+            set_reg(cb_reg, reg_val);
+            set_flag(!reg_val, 7);
+            set_flag(0, 6);
+            set_flag(0, 5);
+            set_flag(!!(old & 0x80), 4);
+        } return;
+        case 3: {
+            //RR
+            uint8_t old = reg_val;
+            reg_val >>= 1;
+            reg_val |= (carry_flag() << 7);
+
+            set_reg(cb_reg, reg_val);
+            set_flag(!reg_val, 7);
+            set_flag(0, 6);
+            set_flag(0, 5);
+            set_flag(old & 1, 4);
+        } return;
+        case 4: {
+            //SLA
+            uint8_t old = reg_val;
+            reg_val <<= 1;
+
+            set_reg(cb_reg, reg_val);
+            set_flag(!reg_val, 7);
+            set_flag(0, 6);
+            set_flag(0, 5);
+            set_flag(!!(old & 0x80), 4);
+        } return;
+
+        case 5: {
+            //SRA
+            uint8_t u = (int8_t)reg_val >> 1;
+            set_reg(cb_reg, u);
+
+            set_flag(!u, 7);
+            set_flag(0, 6);
+            set_flag(0, 5);
+            set_flag(reg_val & 1, 4);            
+        } return;
+
+        case 6: {
+            //SWAP
+            reg_val = ((reg_val & 0xF0) >> 4) | ((reg_val & 0xF) << 4);
+            set_reg(cb_reg, reg_val);
+            set_flag(reg_val == 0, 7);
+            set_flag(0, 6);
+            set_flag(0, 5);
+            set_flag(0, 4);              
+        } return;
+
+        case 7: {
+            //SRL
+            uint8_t u = reg_val >> 1;
+            set_reg(cb_reg, u);
+
+            set_flag(!u, 7);
+            set_flag(0, 6);
+            set_flag(0, 5);
+            set_flag(reg_val & 1, 4);           
+        } return;
+    }
+
+    //if all else failed
+    printf("Error on CB: %02X\n", cb_op);
+}
+
+void rlca(){
+    uint8_t u = a_reg;
+    bool c = (u << 7) & 1;
+    u = (u << 1) | c ;
+    a_reg = u;
+    set_flag(0, 7);
+    set_flag(0, 6);
+    set_flag(0, 5);
+    set_flag(c, 4); 
+    tick();           
+}
+
+void rrca(){
+    uint8_t b = a_reg & 1;
+    a_reg >>= 1;
+    a_reg |= (b << 7);
+    set_flag(0, 7);
+    set_flag(0, 6);
+    set_flag(0, 5);
+    set_flag(b, 4);    
+    tick();
+}
+
+void rla(){
+    uint8_t u = a_reg;
+    uint8_t cf = carry_flag();
+    uint8_t c = (u >> 7) & 1;
+    a_reg = (u << 1) | cf;
+    set_flag(0, 7);
+    set_flag(0, 6);
+    set_flag(0, 5);
+    set_flag(c, 4);  
+    tick();
+}
+
+void rra(){
+    uint8_t old_c = carry_flag();
+    uint8_t new_c = a_reg & 1;
+    a_reg >>= 1;
+    a_reg |= (old_c << 7);
+    set_flag(0, 7);
+    set_flag(0, 6);
+    set_flag(0, 5);
+    set_flag(new_c, 4);  
+    tick();
+}
+
+void daa(){
+    uint8_t u = 0;
+    int fc = 0;
+
+    if (half_carry_flag() || (!add_zero_flag() && (a_reg & 0xF) > 9)) {
+        u = 6;
+    }
+
+    if (carry_flag() || (!add_zero_flag() && a_reg > 0x99)) {
+        u |= 0x60;
+        fc = 1;
+    }
+
+    a_reg += add_zero_flag() ? -u : u;
+
+    set_flag(a_reg == 0, 7);
+    set_flag(0, 5);
+    set_flag(fc, 4); 
+    tick();
+}
+
+void cpl(){ 
+    a_reg = ~a_reg;
+    set_flag(1, 6);
+    set_flag(1, 5);
+}
+
+void scf(){
+    set_flag(0, 6);
+    set_flag(0, 5);
+    set_flag(1, 4);    
+}
+
+void ccf(){
+    set_flag(0, 6);
+    set_flag(0, 5);
+    set_flag(carry_flag()^1, 4);
+}
+
+void halt(){
+    cpu.halted = true;
+}
 /* ----- CPU FUNCTIONALITY ----- */
 
-CPU_STATE cpu = {0, false, false, 0};
+
 
 void execute_instruction(){
     Instruction* instruction = cpu.currInstr;
@@ -1263,6 +1540,9 @@ void execute_instruction(){
     else if(instruction->type == LDH){
         switch(instruction->mode){
             uint8_t a8;
+            uint16_t a16;           
+            uint16_t LSB;
+            uint16_t MSB;
             case(A8_R):
                 a8 = bus_read(pc_reg);
                 pc_reg++;
@@ -1274,7 +1554,17 @@ void execute_instruction(){
                 pc_reg++;
                 tick();
                 ld_r_a8(instruction->reg_1, a8);
-                break;                     
+                break;
+            case(A16_R):     
+                LSB = bus_read(pc_reg); //lo
+                pc_reg++;
+                tick();
+                MSB = bus_read(pc_reg); //hi
+                pc_reg++;
+                tick();
+                a16 = LSB | (MSB << 8);  
+                ld_a16_r(instruction->reg_1, a16);
+                break;                            
             default:
                 printf("No mode exists on LDH instruction\n");            
         }
@@ -1286,40 +1576,40 @@ void execute_instruction(){
         dec(instruction->reg_1, instruction->mode, cpu.currInstrOpcode);       
     }
     else if(instruction->type == RLCA){
-
+        rlca();
     }
     else if(instruction->type == ADD){
         add(instruction->reg_1, instruction->reg_2, instruction->mode);
     }
     else if(instruction->type == RRCA){
-
+        rrca();
     }
     else if(instruction->type == STOP){
         
     }
     else if(instruction->type == RLA){
-
+        rla();
     }
     else if(instruction->type == JR){
         jumpr(instruction->cond);
     }
     else if(instruction->type == RRA){
-
+        rra();
     }
     else if(instruction->type == DAA){
-        
+        daa();
     }
     else if(instruction->type == CPL){
-
+        cpl();
     }
     else if(instruction->type == SCF){
-        
+        scf();
     }
     else if(instruction->type == CCF){
-
+        ccf();
     }
     else if(instruction->type == HALT){
-        
+        halt();
     }
     else if(instruction->type == ADC){
         adc(instruction->reg_1, cpu.currInstrOpcode);
@@ -1340,7 +1630,7 @@ void execute_instruction(){
         or(instruction->reg_1, cpu.currInstrOpcode);
     }
     else if(instruction->type == CP){
-
+        cp(instruction->reg_1, cpu.currInstrOpcode);
     }
     else if(instruction->type == POP){
         pop(instruction->reg_1);
@@ -1356,7 +1646,7 @@ void execute_instruction(){
         ret(instruction->cond);
     }
     else if(instruction->type == CB){
-        
+        cb();
     }
     else if(instruction->type == CALL){
         call(instruction->reg_1, instruction->mode, instruction->cond);
@@ -1368,10 +1658,12 @@ void execute_instruction(){
 
     }
     else if(instruction->type == DI){
-        
+        IME = false;
+        tick();
     }
     else if(instruction->type == EI){
-
+        IME = true;
+        tick();
     }
     else if(instruction->type == RST){
         rst(instruction->param);
@@ -1386,7 +1678,7 @@ void execute_instruction(){
 
     }
     else if(instruction->type == RL){
-        
+
     }
     else if(instruction->type == RR){
 
@@ -1419,16 +1711,26 @@ void fetch_instruction(){
     tick();
     cpu.currInstr = instr_lookup(cpu.currInstrOpcode);
 }
-// void fetch_data(){
 
-// }
+//read instruction and execute, also handle interrupts
 bool cpu_step(){
     if(!cpu.halted){
         fetch_instruction();
-        printf("Current Instruction: %6s (%02X)  // Registers: A %02X B %02X C %02X D %02X F %02X H %02X L %02X PC %04X SP %04X   //  Flags: Z %d N %d H %d C %d\n"
-        ,inst_name(cpu.currInstr->type), cpu.currInstrOpcode, a_reg, b_reg, c_reg, d_reg, flag_reg, h_reg, l_reg, pc_reg, sp_reg, zero_flag() == 1, add_zero_flag() == 1, half_carry_flag() == 1, carry_flag() == 1);
+        printf("Current Instruction: %6s (%02X)  // Registers: A %02X B %02X C %02X D %02X F (%C%C%C%C) H %02X L %02X PC %04X SP %04X\n"
+        ,inst_name(cpu.currInstr->type), cpu.currInstrOpcode, a_reg, b_reg, c_reg, d_reg, flag_reg & (1 << 7) ? 'Z' : '-', flag_reg & (1 << 6) ? 'N' : '-', flag_reg & (1 << 5) ? 'H' : '-', flag_reg & (1 << 4) ? 'C' : '-',
+        h_reg, l_reg, pc_reg, sp_reg);
         execute_instruction();
         return true;
+    }
+    else{
+        tick();
+        if(ie_reg){
+            cpu.halted = false;
+        }
+    }
+    if(IME){
+        handle_interrupt();
+        
     }
 
     return false;
@@ -1445,7 +1747,7 @@ uint8_t get_h_reg(){ return h_reg; }
 uint8_t get_l_reg(){ return l_reg; }
 uint16_t   get_sp(){ return sp_reg;}
 uint16_t   get_pc(){ return pc_reg;}
-uint8_t get_interrupt_reg(){return interrupt_reg;}
+uint8_t get_ie_reg(){return ie_reg;}
 void set_a_reg(uint8_t x){a_reg = x;}
 void set_f_reg(uint8_t x){flag_reg = x;}
 void set_b_reg(uint8_t x){b_reg = x;}
@@ -1457,4 +1759,4 @@ void set_l_reg(uint8_t x){l_reg = x;}
 void   set_sp(uint16_t x){sp_reg = x;}
 void   set_pc(uint16_t x){pc_reg = x;}
 
-void set_interrupt_reg(uint8_t x){interrupt_reg = x;}
+void set_ie_reg(uint8_t x){ie_reg = x;}
