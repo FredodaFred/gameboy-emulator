@@ -9,8 +9,8 @@ void stkpush(uint8_t data){
 }
 
 void stkpush16(uint16_t data){
-    push( (data >> 8) & 0xFF );
-    push( data & 0xFF );
+    stkpush( (data >> 8) & 0xFF );
+    stkpush( data & 0xFF );
 }
 
 uint8_t stkpop(){

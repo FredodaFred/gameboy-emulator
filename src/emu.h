@@ -1,11 +1,13 @@
 #pragma once
+#include <pthread.h>
 
 #include "common.h"
 #include "cart.h"
 #include "bus.h"
 #include "cpu.h"
 
-void emu_begin();
+//stepping - true for stepping mode (DEBUG ONLY)
+void emu_begin(bool stepping);
 
 
 /* Increment Clock by 1 */

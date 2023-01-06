@@ -3,6 +3,7 @@
 uint64_t clock_ticks = 0;
 bool running = true;
 bool halted = false;
+bool stepping_l = false;
 
 uint64_t tick(){
     clock_ticks++;
@@ -11,17 +12,25 @@ uint64_t tick(){
 
 uint64_t get_clock_ticks(){ return clock_ticks; }
 
-void emu_begin(){
-    printf("Emulation begun\n");
-    int size = cart_size();
-    // for(int i = 0x014F; i < 0x5000; i++){
-    //     uint8_t byte = cart_read(i);
-    //     printf("Byte: %x\n", byte);
-    // }
+void* run_cpu(){
     while(running){
+        
         cpu_step();
-        if(clock_ticks > 200){
-            exit(-1);
+        if(stepping_l){
+            getchar();
         }
     }
+    return 0;
+}
+void emu_begin(bool stepping){
+    printf("Emulation begun\n");
+    // pthread_t cpu_thread;
+    // if(pthread_create(&cpu_thread, NULL, run_cpu, NULL)){
+    //     printf("Failed to create cpu thread. Exiting...\n");
+    //     exit(-1);
+    // }
+    if(stepping){
+        stepping_l = true;
+    }
+    run_cpu();
 }

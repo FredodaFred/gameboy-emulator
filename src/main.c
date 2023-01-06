@@ -15,7 +15,10 @@ int main(int argc, char *argv[]) {
         exit(-2);
     }
 
-    emu_begin();
+    if(argv[2]){
+        emu_begin(true);
+    }
+    emu_begin(false);
 
     cart_close();
 }
