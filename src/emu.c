@@ -13,11 +13,13 @@ uint64_t tick(){
 uint64_t get_clock_ticks(){ return clock_ticks; }
 
 void* run_cpu(){
-    while(running){
-        
+    while(running){  
         cpu_step();
         if(stepping_l){
-            getchar();
+            char c = getchar();
+            if(c == 'c'){
+                stepping_l = false;
+            }
         }
     }
     return 0;

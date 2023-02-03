@@ -2,6 +2,14 @@
     "files.associations": {
         "stdio.h": "c",
         "registers.h": "c",
-        "cpu.h": "c"
+        "cpu.h": "c",
+        "common.h": "c",
+        "emu.h": "c",
+        "dbg.h": "c",
+        "pthread.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "vector": "c"
     }
 }

@@ -42,7 +42,7 @@ Instruction instruction_lookup_table[0x100] = {
     [0x77] = {LD, MR_R, HL, A, CT_NONE}, [0x78] = {LD, R_R, A, B, CT_NONE}, [0x79] = {LD, R_R, A, C, CT_NONE}, [0x7A] = {LD, R_R, A, D, CT_NONE},[0x7B] = {LD, R_R, A, E, CT_NONE},
     [0x7C] = {LD, R_R, A, H, CT_NONE},   [0x7D] = {LD, R_R, A, L, CT_NONE}, [0x7E] = {LD, R_MR, A, HL, CT_NONE}, [0x7F] = {LD, R_R, A, A, CT_NONE},   
                                                //LD C,($FF00+A)
-    [0xE0] = {LDH, A8_R, A, R_NONE, CT_NONE}, [0xE2] = {LD, MR_R, C, A, CT_NONE}, [0xEA] = {LDH, A16_R, A, R_NONE, CT_NONE},  
+    [0xE0] = {LDH, A8_R, A, R_NONE, CT_NONE}, [0xE2] = {LD, MR_R, C, A, CT_NONE}, [0xEA] = {LD, A16_R, A, R_NONE, CT_NONE},  
                                                //LD ($FF00+A),C
     [0xF0] = {LDH, R_A8, A, R_NONE, CT_NZ},   [0xF2] = {LD, R_MR, A, C, CT_NONE}, [0xF8] = {LD, HL_SPR, HL, SP, CT_NONE}, [0xF9] = {LD, R_R, SP, HL, CT_NONE}, [0xFA] = {LD, R_A16, A, R_NONE, CT_NONE},
     
@@ -55,7 +55,7 @@ Instruction instruction_lookup_table[0x100] = {
     //CALL INSTRUCTIONS
     [0xC4] = {CALL, D16, R_NONE, R_NONE, CT_NZ}, [0xCC] = {CALL, D16, R_NONE, R_NONE, CT_Z}, [0xCD] = {CALL, D16, R_NONE, R_NONE, CT_NONE}, [0xD4] = {CALL, D16, R_NONE, R_NONE, CT_NC}, [0xDC] = {CALL, D16, R_NONE, R_NONE, CT_C},
     //JUMP RETURN
-    [0x18] ={JR, R_D8, R_NONE, R_NONE, CT_NONE}, [0x20] = {JR, R_D8, R_NONE, R_NONE, CT_NZ}, [0x28] = {JR, R_D8, R_NONE, R_NONE, CT_Z}, [0x30] = {JR, R_D8, R_NONE, R_NONE, CT_NC}, [0x38] = {JR, R_D8, R_NONE, R_NONE, CT_C},
+    [0x18] ={JR, D8, R_NONE, R_NONE, CT_NONE}, [0x20] = {JR, D8, R_NONE, R_NONE, CT_NZ}, [0x28] = {JR, D8, R_NONE, R_NONE, CT_Z}, [0x30] = {JR, D8, R_NONE, R_NONE, CT_NC}, [0x38] = {JR, D8, R_NONE, R_NONE, CT_C},
     //RET 
     [0xC0] = {RET, IMP, R_NONE, R_NONE, CT_NZ}, [0xC8] = {RET, IMP, R_NONE, R_NONE, CT_NZ}, [0xC9] = {RET, IMP, R_NONE, R_NONE, CT_NONE}, [0xD0] = {RET, IMP, R_NONE, R_NONE, CT_NC}, [0xD8] = {RET, IMP, R_NONE, R_NONE, CT_C},
     //RETI

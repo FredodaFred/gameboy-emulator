@@ -82,19 +82,18 @@ uint8_t bus_read(uint16_t addr){
         //ROM Data
         return cart_read(addr);
     } else if (addr < 0xA000) {
-        //Char/Map Data
+        //8 KiB Video RAM (VRAM)
     } else if (addr < 0xC000) {
-        //Cartridge RAM
+        //8 KiB External RAM
         return cart_read(addr);
     } else if (addr < 0xE000) {
-        //WRAM (Working RAM)
+        //4 KiB Work RAM (WRAM)
         return wram_read(addr);
     } else if (addr < 0xFE00) {
-        //reserved echo ram...
+        //Mirror of C000~DDFF (ECHO RAM)
         return 0;
     } else if (addr < 0xFEA0) {
-        //OAM
-        //TODO
+        //Sprite attribute table (OAM)
         printf("UNSUPPORTED bus_read(%04X)\n", addr);
     } else if (addr < 0xFF00) {
         printf("Address unusable...\n");
